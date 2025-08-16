@@ -54,8 +54,9 @@
         <input id="guestName" type="text" required class="w-full border rounded px-3 py-2" placeholder="Ex: Ana Popescu">
       </div>
       <div class="mb-4">
-        <label class="block mb-1 font-bold">Vii cu însoțitor?</label>
+        <label class="block mb-1 font-bold">Vii la nuntă?</label>
         <select id="guestCount" class="w-full border rounded px-3 py-2" onchange="toggleCompanionsField()">
+          <option value="Nu particip">Nu particip</option>
           <option value="Singur">Singur</option>
           <option value="Mai vin cu cineva">Mai vin cu cineva</option>
         </select>
@@ -110,8 +111,9 @@
   function toggleCompanionsField() {
     const val = document.getElementById("guestCount").value;
     const div = document.getElementById("companionsDiv");
-    if(val === "Mai vin cu cineva") div.classList.add("show");
-    else {
+    if(val === "Mai vin cu cineva") {
+      div.classList.add("show");
+    } else {
       div.classList.remove("show");
       document.getElementById("companionsNumber").value = "";
     }
@@ -127,11 +129,12 @@
 
     let guestInfo = guestOption;
     if(guestOption === "Mai vin cu cineva" && companions) guestInfo += ` - ${companions} persoane`;
+    if(guestOption === "Nu particip") guestInfo = "Refuză invitația";
 
     const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdkXf41srpgYwtVLyh9DCgU_zjvp0oFBd2aj6E9RVjUjt4SzQ/formResponse";
     const params = new URLSearchParams();
     params.append("entry.1332698040", name);
-    params.append("entry.546879775", guestInfo.includes("Singur")?"Singur":"Mai vin cu cineva");
+    params.append("entry.546879775", guestOption);
     params.append("entry.705138580", guestInfo);
     params.append("entry.103874600", menu);
 
