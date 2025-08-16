@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invitație la Nuntă</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .font-script { font-family: 'Dancing Script', cursive; }
+    #companionsDiv { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.4s ease; margin-top: 0; }
+    #companionsDiv.show { max-height: 100px; opacity: 1; margin-top: 10px; }
+  </style>
+</head>
+<body class="bg-cover bg-center min-h-screen flex items-center justify-center" style="background-image: url('https://images.pexels.com/photos/169193/pexels-photo-169193.jpeg');">
+
+<div class="bg-white shadow-2xl rounded-2xl max-w-3xl w-full p-6 sm:p-8 border-4 border-pink-300">
+  <!-- Header -->
+  <div class="bg-pink-600 text-white text-center py-6 rounded-xl mb-6">
+    <h1 class="text-4xl sm:text-5xl font-script animate-pulse">Ești Invitat!</h1>
+    <p class="uppercase mt-2 tracking-wide">La nunta noastră</p>
+  </div>
+
+  <!-- Nume mirilor -->
+  <div class="text-center mb-6">
+    <h2 class="text-4xl sm:text-5xl font-script text-pink-500 mb-2">Morarescu-Miu Alexandru-Claudiu & Sterian Ana Maria Florentina</h2>
+    <p class="text-gray-700">Sâmbătă, 11 Octombrie 2025</p>
+  </div>
+
+  <!-- Adrese -->
+  <div class="bg-pink-50 p-4 rounded-xl shadow mb-6 text-gray-700">
+    <p><span class="font-bold">⛪ Cununia religioasă:</span> ora 13:30<br> Str. Brașov, Cartierul 21C, București</p>
+    <p class="mt-2"><span class="font-bold">🎉 Petrecerea:</span> de la ora 20:00<br> Bd. Expoziției nr. 5 (Hotel Casa Comana, București)</p>
+  </div>
+
+  <!-- Mesaj amuzant -->
+  <div class="bg-pink-200 text-pink-900 rounded-xl p-4 mb-6 shadow-md">
+    <p class="italic">„La alte nunți, dress code-ul e black tie. La a noastră, e simplu și casual: <span class="font-bold">să nu te strângă haina pe burta de la sarmale</span>. Știți cum e: unii dau mii de euro pe ținute de nuntă... noi am dat 200 pe teniși și restul pe shot-uri pentru ringul de dans.”</p>
+  </div>
+
+  <!-- Countdown -->
+  <div class="bg-pink-600 text-white p-4 rounded-xl shadow-md mb-6 text-center">
+    <h3 class="text-2xl font-script mb-2">Mai sunt doar:</h3>
+    <div id="countdown" class="text-3xl sm:text-4xl font-bold"></div>
+  </div>
+
+  <!-- Formular RSVP -->
+  <div class="bg-pink-50 p-4 rounded-xl shadow-md">
+    <h3 class="text-2xl font-script mb-4 text-pink-500 text-center">Confirmare prezență</h3>
+    <form id="rsvpForm">
+      <div class="mb-4">
+        <label class="block mb-1 font-bold">Nume:</label>
+        <input id="guestName" type="text" required class="w-full border rounded px-3 py-2" placeholder="Ex: Ana Popescu">
+      </div>
+      <div class="mb-4">
+        <label class="block mb-1 font-bold">Vii cu însoțitor?</label>
+        <select id="guestCount" class="w-full border rounded px-3 py-2" onchange="toggleCompanionsField()">
+          <option value="Singur">Singur</option>
+          <option value="Mai vin cu cineva">Mai vin cu cineva</option>
+        </select>
+      </div>
+      <div class="mb-4" id="companionsDiv">
+        <label class="block mb-1 font-bold">Număr însoțitori:</label>
+        <input id="companionsNumber" type="number" min="1" class="w-full border rounded px-3 py-2">
+      </div>
+      <div class="mb-4">
+        <label class="block mb-1 font-bold">Alegerea meniului:</label>
+        <select id="menuChoice" class="w-full border rounded px-3 py-2">
+          <option value="Normal">Normal</option>
+          <option value="Vegetarian">Vegetarian</option>
+          <option value="Vegan">Vegan</option>
+        </select>
+      </div>
+      <button type="button" onclick="submitForm()" class="w-full bg-pink-500 text-white py-2 rounded hover:bg-pink-700 transition">Trimite Raspuns</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Confirmare -->
+<div id="confirmationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-xl max-w-md mx-auto text-center">
+    <h2 class="text-2xl font-script text-pink-500 mb-4">Mulțumim!</h2>
+    <p class="mb-4">Confirmarea a fost înregistrată cu succes. 🥂</p>
+    <button class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-700 transition" onclick="closeModal('confirmationModal')">Închide</button>
+  </div>
+</div>
+
+<script>
+  // Countdown
+  const weddingDate = new Date("October 11, 2025 13:30:00").getTime();
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = weddingDate - now;
+    if(distance < 0){
+      document.getElementById("countdown").innerHTML = "Nunta a început!";
+      clearInterval(countdownInterval);
+      return;
+    }
+    const days = Math.floor(distance/(1000*60*60*24));
+    const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+    const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
+    const seconds = Math.floor((distance%(1000*60))/1000);
+    document.getElementById("countdown").innerHTML = `${days}z ${hours}h ${minutes}m ${seconds}s`;
+  }
+  const countdownInterval = setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // Toggle companions
+  function toggleCompanionsField() {
+    const val = document.getElementById("guestCount").value;
+    const div = document.getElementById("companionsDiv");
+    if(val === "Mai vin cu cineva") div.classList.add("show");
+    else {
+      div.classList.remove("show");
+      document.getElementById("companionsNumber").value = "";
+    }
+  }
+
+  // Submit form
+  function submitForm() {
+    const name = document.getElementById("guestName").value.trim();
+    const guestOption = document.getElementById("guestCount").value;
+    const companions = document.getElementById("companionsNumber").value;
+    const menu = document.getElementById("menuChoice").value;
+    if(!name){ alert("Completează numele!"); return; }
+
+    let guestInfo = guestOption;
+    if(guestOption === "Mai vin cu cineva" && companions) guestInfo += ` - ${companions} persoane`;
+
+    const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdkXf41srpgYwtVLyh9DCgU_zjvp0oFBd2aj6E9RVjUjt4SzQ/formResponse";
+    const params = new URLSearchParams();
+    params.append("entry.1332698040", name);
+    params.append("entry.546879775", guestInfo.includes("Singur")?"Singur":"Mai vin cu cineva");
+    params.append("entry.705138580", guestInfo);
+    params.append("entry.103874600", menu);
+
+    fetch(formUrl,{
+      method:"POST",
+      mode:"no-cors",
+      headers:{ "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString()
+    }).then(()=>{
+      document.getElementById("rsvpForm").reset();
+      document.getElementById("companionsDiv").classList.remove("show");
+      document.getElementById("confirmationModal").classList.remove("hidden");
+      document.getElementById("confirmationModal").classList.add("flex");
+    }).catch(err=>{
+      console.error(err);
+      alert("Eroare la trimitere. Încearcă din nou.");
+    });
+  }
+
+  // Close modal
+  function closeModal(id){
+    document.getElementById(id).classList.add("hidden");
+    document.getElementById(id).classList.remove("flex");
+  }
+</script>
+
+</body>
+</html>
